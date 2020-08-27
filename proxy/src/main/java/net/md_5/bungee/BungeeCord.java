@@ -73,11 +73,6 @@ import net.md_5.bungee.chat.ScoreComponentSerializer;
 import net.md_5.bungee.chat.SelectorComponentSerializer;
 import net.md_5.bungee.chat.TextComponentSerializer;
 import net.md_5.bungee.chat.TranslatableComponentSerializer;
-import net.md_5.bungee.command.CommandBungee;
-import net.md_5.bungee.command.CommandEnd;
-import net.md_5.bungee.command.CommandIP;
-import net.md_5.bungee.command.CommandPerms;
-import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.compress.CompressFactory;
@@ -214,16 +209,11 @@ public class BungeeCord extends ProxyServer
         consoleReader.setExpandEvents( false );
         consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
 
-        logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
+        logger = new BungeeLogger( "JellyProxy", "proxy.log", consoleReader );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
         pluginManager = new PluginManager( this );
-        getPluginManager().registerCommand( null, new CommandReload() );
-        getPluginManager().registerCommand( null, new CommandEnd() );
-        getPluginManager().registerCommand( null, new CommandIP() );
-        getPluginManager().registerCommand( null, new CommandBungee() );
-        getPluginManager().registerCommand( null, new CommandPerms() );
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
@@ -534,7 +524,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getVersion()
     {
-        return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
+        return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "markovav.ru" : BungeeCord.class.getPackage().getImplementationVersion();
     }
 
     public void reloadMessages()
