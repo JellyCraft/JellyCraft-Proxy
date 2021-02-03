@@ -4,10 +4,8 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.net.InetSocketAddress;
-import java.util.Locale;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -31,10 +29,8 @@ import net.md_5.bungee.forge.ForgeUtils;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.netty.PipelineUtils;
+import net.md_5.bungee.protocol.*;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.GameState;
@@ -103,15 +99,24 @@ public class ServerConnector extends PacketHandler
             String newHost = copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID();
 
             LoginResult profile = user.getPendingConnection().getLoginProfile();
+            LoginResult.Property[] properties = new LoginResult.Property[0];
             if ( profile != null && profile.getProperties() != null && profile.getProperties().length > 0 )
             {
-                newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
+                properties = profile.getProperties();
+            }
+            if ( user.getForgeClientHandler().isFmlTokenInHandshake() )
+            {
+                LoginResult.Property[] newp = Arrays.copyOf( properties, properties.length + 2 );
+                newp[newp.length - 2] = new LoginResult.Property( ForgeConstants.FML_LOGIN_PROFILE, "true", null );
+                newp[newp.length - 1] = new LoginResult.Property( ForgeConstants.EXTRA_DATA, user.getExtraDataInHandshake().replaceAll( "\0", "\1"), "" );
+                properties = newp;
+            }
+            if (properties.length > 0) {
+                newHost += "\00" + BungeeCord.getInstance().gson.toJson(properties);
             }
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off.
-            // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
 
@@ -178,6 +183,11 @@ public class ServerConnector extends PacketHandler
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
+
+        if (server.isForgeServer() && user.isForgeUser()) {
+            ((MinecraftDecoder) server.getCh().getHandle().pipeline().get(PipelineUtils.PACKET_DECODER)).setSupportsForge(true);
+            ((MinecraftDecoder) user.getCh().getHandle().pipeline().get(PipelineUtils.PACKET_DECODER)).setSupportsForge(true);
+        }
         bungee.getPluginManager().callEvent( event );
 
         ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );

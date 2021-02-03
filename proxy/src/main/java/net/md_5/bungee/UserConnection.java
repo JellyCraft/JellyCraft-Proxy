@@ -72,6 +72,7 @@ public final class UserConnection implements ProxiedPlayer
     @NonNull
     private final ProxyServer bungee;
     @NonNull
+    @Getter
     private final ChannelWrapper ch;
     @Getter
     @NonNull
@@ -164,7 +165,10 @@ public final class UserConnection implements ProxiedPlayer
         forgeClientHandler = new ForgeClientHandler( this );
 
         // Set whether the connection has a 1.8 FML marker in the handshake.
-        forgeClientHandler.setFmlTokenInHandshake( this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ) );
+        if (this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ))
+        {
+            forgeClientHandler.setFmlTokenInHandshake( true );
+        }
     }
 
     public void sendPacket(PacketWrapper packet)
