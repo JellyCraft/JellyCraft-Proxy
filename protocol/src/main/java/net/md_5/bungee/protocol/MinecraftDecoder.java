@@ -49,6 +49,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 
                 if ( in.isReadable() )
                 {
+                    // Waterfall start: Additional DoS mitigations
+                    if(!DEBUG) {
+                        throw PACKET_NOT_READ_TO_END;
+                    }
+                    // Waterfall end
                     throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
                 }
             } else
@@ -66,4 +71,52 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             }
         }
     }
+
+    // Waterfall start: Additional DoS mitigations, courtesy of Velocity
+    public static final boolean DEBUG = Boolean.getBoolean("waterfall.packet-decode-logging");
+
+    // Cached Exceptions:
+    private static final CorruptedFrameException PACKET_LENGTH_OVERSIZED =
+            new CorruptedFrameException("A packet could not be decoded because it was too large. For more "
+                    + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+    private static final CorruptedFrameException PACKET_LENGTH_UNDERSIZED =
+            new CorruptedFrameException("A packet could not be decoded because it was smaller than allowed. For more "
+                    + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+    private static final BadPacketException PACKET_NOT_READ_TO_END =
+            new BadPacketException("Couldn't read all bytes from a packet. For more "
+                    + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+
+
+    private void doLengthSanityChecks(ByteBuf buf, DefinedPacket packet,
+                                      ProtocolConstants.Direction direction, int packetId) throws Exception {
+        int expectedMinLen = packet.expectedMinLength(buf, direction, protocolVersion);
+        int expectedMaxLen = packet.expectedMaxLength(buf, direction, protocolVersion);
+        if (expectedMaxLen != -1 && buf.readableBytes() > expectedMaxLen) {
+            throw handleOverflow(packet, expectedMaxLen, buf.readableBytes(), packetId);
+        }
+        if (buf.readableBytes() < expectedMinLen) {
+            throw handleUnderflow(packet, expectedMaxLen, buf.readableBytes(), packetId);
+        }
+    }
+
+    private Exception handleOverflow(DefinedPacket packet, int expected, int actual, int packetId) {
+        if (DEBUG) {
+            throw new CorruptedFrameException( "Packet " + packet.getClass() + " " + packetId
+                    + " Protocol " + protocolVersion + " was too big (expected "
+                    + expected + " bytes, got " + actual + " bytes)");
+        } else {
+            return PACKET_LENGTH_OVERSIZED;
+        }
+    }
+
+    private Exception handleUnderflow(DefinedPacket packet, int expected, int actual, int packetId) {
+        if (DEBUG) {
+            throw new CorruptedFrameException( "Packet " + packet.getClass() + " " + packetId
+                    + " Protocol " + protocolVersion + " was too small (expected "
+                    + expected + " bytes, got " + actual + " bytes)");
+        } else {
+            return PACKET_LENGTH_UNDERSIZED;
+        }
+    }
+    // Waterfall end
 }
