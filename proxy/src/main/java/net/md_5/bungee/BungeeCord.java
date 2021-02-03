@@ -116,7 +116,6 @@ public class BungeeCord extends ProxyServer
      * locations.yml save thread.
      */
     private final Timer saveThread = new Timer( "Reconnect Saver" );
-    private final Timer metricsThread = new Timer( "Metrics Thread" );
     /**
      * Server socket listener.
      */
@@ -182,8 +181,6 @@ public class BungeeCord extends ProxyServer
     {
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
-
-        System.setSecurityManager( new BungeeSecurityManager() );
 
         try
         {
@@ -291,7 +288,6 @@ public class BungeeCord extends ProxyServer
                 }
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
-        metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
 
         Runtime.getRuntime().addShutdownHook( new Thread()
         {
@@ -449,7 +445,6 @@ public class BungeeCord extends ProxyServer
             reconnectHandler.close();
         }
         saveThread.cancel();
-        metricsThread.cancel();
 
         getLogger().info( "Disabling plugins" );
         for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )

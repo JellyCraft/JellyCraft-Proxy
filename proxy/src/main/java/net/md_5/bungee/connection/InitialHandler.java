@@ -38,6 +38,7 @@ import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
+import net.md_5.bungee.jellyutils.UUIDUtils;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -647,7 +648,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getUUID()
     {
-        return uniqueId.toString().replace( "-", "" );
+        return UUIDUtils.undash( uniqueId.toString() );
     }
 
     @Override

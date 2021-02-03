@@ -10,6 +10,7 @@ import lombok.ToString;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.jellyutils.UUIDUtils;
 
 /**
  * Represents the standard list data returned by opening a server in the
@@ -74,7 +75,7 @@ public class ServerPing
 
         public String getId()
         {
-            return uniqueId.toString().replace( "-", "" );
+            return UUIDUtils.undash( uniqueId.toString() );
         }
     }
 

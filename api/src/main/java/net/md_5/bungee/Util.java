@@ -1,8 +1,11 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
+import com.google.common.primitives.Ints;
 import com.google.common.primitives.UnsignedLongs;
 import io.netty.channel.unix.DomainSocketAddress;
+import net.md_5.bungee.jellyutils.Hex;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
@@ -65,7 +68,7 @@ public class Util
      */
     public static String hex(int i)
     {
-        return String.format( "0x%02X", i );
+        return Hex.encodeString(Ints.toByteArray(i));
     }
 
     /**
