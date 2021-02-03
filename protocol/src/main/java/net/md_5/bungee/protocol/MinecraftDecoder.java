@@ -1,7 +1,9 @@
 package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -38,13 +40,17 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
 
+        Object packetTypeInfo = null;
         try
         {
             int packetId = DefinedPacket.readVarInt( in );
+            packetTypeInfo = packetId;
 
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion, supportsForge );
             if ( packet != null )
             {
+                packetTypeInfo = packet.getClass();
+                doLengthSanityChecks(in, packet, prot.getDirection(), packetId); // Waterfall: Additional DoS mitigations
                 packet.read( in, prot.getDirection(), protocolVersion );
 
                 if ( in.isReadable() )
@@ -63,6 +69,21 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 
             out.add( new PacketWrapper( packet, slice ) );
             slice = null;
+        } catch (BadPacketException | IndexOutOfBoundsException e) {
+            // Waterfall start: Additional DoS mitigations
+            if(!DEBUG) {
+                throw e;
+            }
+            // Waterfall end
+            final String packetTypeStr;
+            if (packetTypeInfo instanceof Integer) {
+                packetTypeStr = "id " + Integer.toHexString((Integer) packetTypeInfo);
+            } else if (packetTypeInfo instanceof Class) {
+                packetTypeStr = "class " + ((Class) packetTypeInfo).getSimpleName();
+            } else {
+                packetTypeStr = "unknown";
+            }
+            throw new DecoderException("Error decoding packet " + packetTypeStr + " with contents:\n" + ByteBufUtil.prettyHexDump(slice), e);
         } finally
         {
             if ( slice != null )
