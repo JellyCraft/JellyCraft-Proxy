@@ -41,7 +41,7 @@ public class TabCompleteRequest extends DefinedPacket
         {
             transactionId = readVarInt( buf );
         }
-        cursor = readString( buf );
+        cursor = readString( buf , 32500); // Waterfall
 
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
         {
