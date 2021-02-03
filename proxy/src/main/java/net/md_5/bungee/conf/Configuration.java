@@ -1,6 +1,7 @@
 package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap; // Waterfall
 import gnu.trove.map.TMap;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class Configuration implements ProxyConfig
      * Set of all listeners.
      */
     private Collection<ListenerInfo> listeners;
+    private final Object serversLock = new Object(); // Waterfall
     /**
      * Set of all servers.
      */
@@ -68,6 +70,7 @@ public class Configuration implements ProxyConfig
     private boolean preventProxyConnections;
     private boolean forgeSupport;
 
+    @Synchronized("serversLock") // Waterfall
     public void load()
     {
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
@@ -175,4 +178,71 @@ public class Configuration implements ProxyConfig
     {
         return favicon;
     }
+
+    // Waterfall start
+    @Override
+    @Synchronized("serversLock")
+    public Map<String, ServerInfo> getServersCopy() {
+        return ImmutableMap.copyOf( servers );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo getServerInfo(String name)
+    {
+        return this.servers.get( name );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo addServer(ServerInfo server)
+    {
+        return this.servers.put( server.getName(), server );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public boolean addServers(Collection<ServerInfo> servers)
+    {
+        boolean changed = false;
+        for ( ServerInfo server : servers )
+        {
+            if ( server != this.servers.put( server.getName(), server ) ) changed = true;
+        }
+        return changed;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo removeServerNamed(String name)
+    {
+        return this.servers.remove( name );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo removeServer(ServerInfo server)
+    {
+        return this.servers.remove( server.getName() );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public boolean removeServersNamed(Collection<String> names)
+    {
+        return this.servers.keySet().removeAll( names );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public boolean removeServers(Collection<ServerInfo> servers)
+    {
+        boolean changed = false;
+        for ( ServerInfo server : servers )
+        {
+            if ( null != this.servers.remove( server.getName() ) ) changed = true;
+        }
+        return changed;
+    }
+    // Waterfall end
 }
