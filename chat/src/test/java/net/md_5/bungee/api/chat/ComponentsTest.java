@@ -454,8 +454,8 @@ public class ComponentsTest
     public void testBuilderSpecialFormatting()
     {
         BaseComponent[] components = new ComponentBuilder( "Hello " )
-                        .bold(true).underlined(true).italic(true).strikethrough(true).obfuscated(true)
-                        .append("World").underlined(false).strikethrough(false).create();
+                        .bold( true ).underlined( true ).italic( true ).strikethrough( true ).obfuscated( true )
+                        .append( "World" ).underlined( false ).strikethrough( false ).create();
 
         Assert.assertTrue( components[0].isBold() );
         Assert.assertTrue( components[0].isUnderlined() );
