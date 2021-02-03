@@ -49,6 +49,21 @@ public class UpstreamBridge extends PacketHandler
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
     }
 
+    public static boolean isBlank(String str) {
+        if (str.isEmpty()) {
+            return true;
+        }
+
+        int l = str.length();
+        for (int i = 0; i < l; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     @Override
     public void exception(Throwable t) throws Exception
     {
@@ -146,6 +161,7 @@ public class UpstreamBridge extends PacketHandler
     {
         int maxLength = ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_11 ) ? 256 : 100;
         Preconditions.checkArgument( chat.getMessage().length() <= maxLength, "Chat message too long" ); // Mojang limit, check on updates
+        Preconditions.checkArgument(!isBlank(chat.getMessage()), "Chat message is empty");
 
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
@@ -260,6 +276,6 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + con.getName() + "] -> UpstreamBridge";
+        return "[" + con.getAddress() + "|" + con.getName() + "] -> UpstreamBridge";
     }
 }

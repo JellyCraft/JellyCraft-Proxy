@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import lombok.Synchronized;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
@@ -113,7 +114,7 @@ public class Configuration implements ProxyConfig
             servers = new CaseInsensitiveMap<>( newServers );
         } else
         {
-            Map<String, ServerInfo> oldServers = this.servers;
+            Map<String, ServerInfo> oldServers = getServersCopy();
 
             // Add new servers
             for ( ServerInfo oldServer : oldServers.values() )

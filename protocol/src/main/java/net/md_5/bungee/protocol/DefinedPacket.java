@@ -262,4 +262,16 @@ public abstract class DefinedPacket
 
     @Override
     public abstract String toString();
+
+    private static final OverflowPacketException STRING_TOO_LONG_EXCEPTION = new OverflowPacketException("A string was longer than allowed. For more information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+    private static final OverflowPacketException STRING_TOO_MANY_BYTES_EXCEPTION
+            = new OverflowPacketException("A string had more data than allowed. For more information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+
+    public int expectedMaxLength(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        return -1;
+    }
+
+    public int expectedMinLength(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        return 0;
+    }
 }
