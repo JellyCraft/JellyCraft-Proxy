@@ -12,6 +12,7 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import java.util.Objects; // Waterfall
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -80,16 +81,19 @@ public class DownstreamBridge extends PacketHandler
             return;
         }
 
+        // Waterfall start
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        if ( def != null )
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "server_went_down" ) ), def, ServerKickEvent.State.CONNECTED, ServerKickEvent.Cause.EXCEPTION ) );
+        if ( event.isCancelled() && event.getCancelServer() != null )
         {
             server.setObsolete( true );
-            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
-        } else
-        {
-            con.disconnect( Util.exception( t ) );
+            con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
         }
+        else
+        {
+            con.disconnect0( event.getKickReasonComponent() );
+        }
+        // Waterfall end
     }
 
     @Override
@@ -104,7 +108,19 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( bungee.getTranslation( "lost_connection" ) );
+            // Waterfall start
+            ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+            ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "lost_connection" ) ), def, ServerKickEvent.State.CONNECTED, ServerKickEvent.Cause.LOST_CONNECTION ) );
+            if ( event.isCancelled() && event.getCancelServer() != null )
+            {
+                server.setObsolete( true );
+                con.connectNow( event.getCancelServer() );
+            }
+            else
+            {
+                con.disconnect0( event.getKickReasonComponent() );
+            }
+            // Waterfall end
         }
 
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
@@ -538,7 +554,11 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        if ( Objects.equals( server.getInfo(), def ) )
+        {
+            def = null;
+        }
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED, ServerKickEvent.Cause.SERVER ) ); // Waterfall
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
