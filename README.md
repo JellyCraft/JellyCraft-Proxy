@@ -13,5 +13,5 @@ JellyCraft
 -----
 This fork of BungeeCord is optimized for JellyCraft game project. All commands of BungeeCord have been removed from this version. A part of the code related to project security and additional functionality of JellyProxy has been removed from public access and is available only to the senior project developer [Markov Andrei (VK)](https://vk.com/markovav_official). 
 
-(c) 2020-2021 markovav.ru
-(c) 2012-2021 SpigotMC Pty. Ltd.
+* (c) 2012-2021 SpigotMC Pty. Ltd.
+* (c) 2020-2021 markovav.ru
