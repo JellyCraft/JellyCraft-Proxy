@@ -87,6 +87,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
+import net.md_5.bungee.rcon.RCON;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
@@ -302,6 +303,8 @@ public class BungeeCord extends ProxyServer
 
     public void startListeners()
     {
+        if (config.isRconEnabled()) RCON.init( config.getRconPort(), config.getRconPassword() );
+
         for ( final ListenerInfo info : config.getListeners() )
         {
             if ( info.isProxyProtocol() )
@@ -365,6 +368,8 @@ public class BungeeCord extends ProxyServer
 
     public void stopListeners()
     {
+        RCON.destroy();
+
         for ( Channel listener : listeners )
         {
             getLogger().log( Level.INFO, "Closing listener {0}", listener );

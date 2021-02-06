@@ -8,7 +8,7 @@
     <version>1.16-R0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>BungeeCord-Parent</name>
+    <name>BungeeCord-Parent (JellyProxy)</name>
     <description>Parent project for all BungeeCord modules.</description>
     <url>https://github.com/SpigotMC/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>

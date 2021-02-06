@@ -70,6 +70,13 @@ public class Configuration implements ProxyConfig
     private boolean preventProxyConnections;
     private boolean forgeSupport;
 
+    /**
+     * JellyProxy -> RCON
+     */
+    private boolean rconEnabled = false;
+    private int rconPort = 27000;
+    private String rconPassword = "not_configured";
+
     @Synchronized("serversLock") // Waterfall
     public void load()
     {
@@ -104,6 +111,10 @@ public class Configuration implements ProxyConfig
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
+
+        rconEnabled = adapter.getBoolean( "rcon.enabled", rconEnabled );
+        rconPort = adapter.getInt( "rcon.port", rconPort );
+        rconPassword = adapter.getString( "rcon.password", rconPassword );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
