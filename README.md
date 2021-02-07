@@ -4,6 +4,7 @@ JellyProxy - BungeeCord
 Information
 -----------
 BungeeCord is maintained by [SpigotMC](https://www.spigotmc.org/) and has its own [discussion thread](https://www.spigotmc.org/go/bungeecord) with plenty of helpful information and links.
+
 Some JellyProxy patches are developed by [Waterfall](https://github.com/PaperMC/Waterfall).
 
 Original Source
@@ -16,5 +17,5 @@ This fork of BungeeCord is optimized for JellyCraft game project. All commands o
 
 
 * (c) 2012-2021 SpigotMC Pty. Ltd.
-* (c) 2015-2016 Waterfall Team
+* (c) 2015-2021 Waterfall Team
 * (c) 2020-2021 markovav.ru
