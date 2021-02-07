@@ -15,18 +15,18 @@ public class RCON {
 
     public static void init(int port, String password) {
         final SocketAddress address = new InetSocketAddress(port);
-        ProxyServer.getInstance().getLogger().log(Level.INFO, "Binding rcon to address: {0}...", address);
+        ProxyServer.getInstance().getLogger().log(Level.INFO, "Binding RCON to address: {0}...", address);
         rconServer = new RconServer(ProxyServer.getInstance(), password);
         final ChannelFuture future = rconServer.bind(address);
         final Channel channel = future.awaitUninterruptibly().channel();
         if (!channel.isActive()) {
-            ProxyServer.getInstance().getLogger().warning("Failed to bind rcon port. Address already in use?");
+            ProxyServer.getInstance().getLogger().warning("Failed to bind RCON port. Address already in use?");
         }
     }
 
     public static void destroy() {
         if (rconServer != null) {
-            ProxyServer.getInstance().getLogger().info("Trying to stop RCON listener");
+            ProxyServer.getInstance().getLogger().info("Stopping RCON listener");
             rconServer.shutdown();
         }
     }
