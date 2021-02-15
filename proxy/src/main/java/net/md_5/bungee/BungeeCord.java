@@ -207,7 +207,7 @@ public class BungeeCord extends ProxyServer
         consoleReader.setExpandEvents( false );
         consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
 
-        logger = new BungeeLogger( "JellyProxy", "proxy.log", consoleReader );
+        logger = new BungeeLogger( "JAProxy", "proxy.log", consoleReader );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
@@ -521,13 +521,13 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "JellyProxy";
+        return "JAProxy";
     }
 
     @Override
     public String getVersion()
     {
-        return "1.16.5 (b3)";
+        return "1.16.5 (b4)";
     }
 
     public void reloadMessages()
