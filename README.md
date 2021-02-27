@@ -1,4 +1,4 @@
-JellyProxy - BungeeCord
+JellyCraft-Proxy [JAProxy] - BungeeCord
 ==========
 
 Information
