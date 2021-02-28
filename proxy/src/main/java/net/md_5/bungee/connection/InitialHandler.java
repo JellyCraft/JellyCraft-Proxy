@@ -195,12 +195,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( v1_5 )
                 {
-                    kickMessage = ChatColor.DARK_BLUE
-                            + "\00" + 127
-                            + '\00' + legacy.getVersion().getName()
-                            + '\00' + getFirstLine( legacy.getDescription() )
-                            + '\00' + legacy.getPlayers().getOnline()
-                            + '\00' + legacy.getPlayers().getMax();
+                    if (legacy.getVersion() == null) kickMessage = "";
+                    else {
+                        kickMessage = ChatColor.DARK_BLUE
+                                + "\00" + 127
+                                + '\00' + legacy.getVersion().getName()
+                                + '\00' + getFirstLine( legacy.getDescription() )
+                                + '\00' + legacy.getPlayers().getOnline()
+                                + '\00' + legacy.getPlayers().getMax();
+                    }
                 } else
                 {
                     // Clients <= 1.3 don't support colored motds because the color char is used as delimiter
