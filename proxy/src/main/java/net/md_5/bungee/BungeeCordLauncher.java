@@ -68,6 +68,7 @@ public class BungeeCordLauncher
             String line;
             while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
             {
+                if (line.trim().equals("")) continue;
                 if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
                     bungee.getConsole().sendMessage( new ComponentBuilder( "Command not found" ).color( ChatColor.RED ).create() );

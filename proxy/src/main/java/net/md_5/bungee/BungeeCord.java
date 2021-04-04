@@ -527,7 +527,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getVersion()
     {
-        return "1.16.5 (v5)";
+        return "1.16.5 (v6)";
     }
 
     public void reloadMessages()
