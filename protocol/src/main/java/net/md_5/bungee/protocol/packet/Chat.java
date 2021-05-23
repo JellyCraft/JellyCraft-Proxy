@@ -40,12 +40,7 @@ public class Chat extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        // Waterfall start
-        if (direction == ProtocolConstants.Direction.TO_CLIENT) {
-            this.message = readString(buf, Short.MAX_VALUE * 8 + 8);
-        } else
-        // Waterfall end
-        message = readString( buf );
+        message = readString( buf, ( direction == ProtocolConstants.Direction.TO_CLIENT ) ? Short.MAX_VALUE : 256 );
         if ( direction == ProtocolConstants.Direction.TO_CLIENT )
         {
             position = buf.readByte();
