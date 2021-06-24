@@ -35,8 +35,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
         int size = DefinedPacket.readVarInt( in );
         if ( size == 0 )
         {
-            out.add( in.slice().retain() );
-            in.skipBytes( in.readableBytes() );
+            out.add( in.retain() );
         } else
         {
             Preconditions.checkArgument( size >= compressionThreshold, "Decompressed size %s less than compression threshold %s", size, compressionThreshold);
